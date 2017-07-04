@@ -6,163 +6,221 @@
 #include "iostream"
 #include "ctime"
 #include <string.h>
-//#include "queue"
-//#include "stack"
 
 using namespace std;
 
-//Класс «узел дерева»
-class Node{ char d;	 //тегузла
-Node * lft;	// левый сын
-Node  * mdl;	//средний сын (если нужно)
-Node * rgt;	// правыйсын
-public:
-    Node() { lft = nullptr; mdl = nullptr; rgt = nullptr; } // конструкторузла
-    ~Node() {
-        if (lft) delete lft; // деструктор (уничтожаетподдерево)
-        if (mdl) delete mdl;
-        if (rgt) delete rgt;
-    }
-    friend class Tree;	// дружественныйкласс «дерево»
+/* Класс "узел" */
+class node {
+
+    char tag;
+    node * left;
+    node * right;
+    public:
+        node () : left (nullptr), right (nullptr) {
+        }
+        
+        ~node () {
+            if (left) delete left;
+            if (right) delete right;
+        }
+    friend class tree;
+    
 };
 
-// Класс «дерево в целом»
-class Tree
-{ Node * root;	// указатель на корень дерева
-char num, maxnum;		//счётчик тегов и максимальный тег
-int maxrow, offset;		//максимальная глубина, смещение корня
-char ** SCREEN;	// память для выдачи на экран
-void clrscr();	// очистка рабочей памяти
-Node* MakeNode(int depth);	// создание поддерева
-void OutNodes(Node * v, int r, int c); // выдача поддерева
-Tree(const Tree &);	// фиктивный конструктор копии
-Tree operator = (const Tree &) const;	// фиктивное присваивание
- 
-public:
-    Tree(char num, char maxnum, int maxrow);//конструктор пустого дерева
-    ~Tree();
-    
-    void MakeTree() {root = MakeNode(0);}// ввод — генерация дерева
-    
-    bool exist() { return root != NULL; } // проверка «дерево не пусто»
-    
-    int DFS();	// обходы дерева
-    
-    int BFS();
-    
-    void OutTree();	// выдача на экран
+/* Класс "дерево" */
+class tree {
+
+    node * root;
+    char num, maxnum;
+    int maxrow, offset;
+    char ** SCREEN;
+
+    tree (const tree &);
+    tree operator = (const tree &) const;
+    node* makeNode (int depth);
+    void outNodes (node * v, int r, int c);
+    void clrscr ();
+
+    public:
+        tree (char num, char maxnum, int maxrow);
+        ~tree ();
+        void makeTree () {
+            root = makeNode(0);
+        }
+        void outTree ();
+        bool exist () {
+            return root != NULL;
+        }
+        int DFS ();
+        int BFS ();
+
 };
 
-Tree :: Tree(char nm, char mnm, int mxr) : num(nm), maxnum(mnm), maxrow(mxr), offset(40), root(NULL)
-{
+/* Конструктор дерева */
+tree :: tree (char nm, char mnm, int mxr) : num(nm), maxnum(mnm), maxrow(mxr), offset(40), root(NULL) {
+
     SCREEN = new char *[maxrow];
-    for (int i = 0; i<maxrow; i++) SCREEN[i] = new char[80];
+
+    for (int i = 0; i < maxrow; ++i)
+        SCREEN[i] = new char[80];
+
 }
 
-Tree :: ~Tree() {
-    for (int i = 0; i<maxrow; i++) delete[]SCREEN[i];
-    delete[]SCREEN; delete root;
+/* Деструктор дерева */
+tree :: ~tree () {
+
+    for (int i = 0; i < maxrow; ++i)
+        delete[] SCREEN[i];
+
+    delete[] SCREEN;
+    delete root;
+
 }
 
-Node * Tree::MakeNode(int depth)
-{
-    Node * v = NULL;
+/* Функция создания  */
+node * tree :: makeNode (int depth) {
+
+    node * v = NULL;
     int Y = (depth < rand() % 6 + 1) && (num <= 'z');
     //int Y;
-     //cout << "Node (" <<num<< "," << depth << ")  1/0: " ; cin>> Y;
+     //cout << "node (" <<num<< "," << depth << ")  1/0: " ; cin>> Y;
     if (Y) {	// создание узла, если Y = 1
-        v = new Node;
-        v->d = num++;	 // разметка в прямом порядке (= «в глубину»)
-        v->lft = MakeNode(depth + 1);
+        v = new node;
+        v->tag = num++;	 // разметка в прямом порядке (= «в глубину»)
+        v->left = makeNode(depth + 1);
                  //v->d = num++;          //вариант — во внутреннем
-        v->mdl = MakeNode(depth + 1);
-        v->rgt = MakeNode(depth + 1);
+        v->right = makeNode(depth + 1);
                  //v->d = num++;		// вариант — в обратном
     }
+
     return v;
+
 }
 
-void Tree::OutTree()
-{
-    clrscr();
-    OutNodes(root, 1, offset);
-    for (int i = 0; i<maxrow; i++)
-    {
+/* Функция вывода дерева на экран */
+void tree :: outTree () {
+
+    clrscr ();
+    outNodes (root, 1, offset);
+    for (int i = 0; i < maxrow; ++i) {
         SCREEN[i][79] = 0;
         cout << "\n"<< SCREEN[i];
     }
     cout << "\n";
+
 }
 
-void Tree::clrscr()
-{
-    for (int i = 0; i<maxrow; i++)
-        memset(SCREEN[i], '.', 80);
+/* Функция инициализации точками массива для вывода */
+void tree :: clrscr () {
+
+    for (int i = 0; i < maxrow; ++i)
+        memset (SCREEN[i], '.', 80);
+
 }
 
-void Tree::OutNodes(Node * v, int r, int c)
-{
-    if (r && c && (c<80)) SCREEN[r - 1][c - 1] = v->d; // выводметки
-    if (r <maxrow) {
-        if (v->lft) OutNodes(v->lft, r + 1, c -(offset >> r)); //левыйсын
-        if (v->mdl) OutNodes(v->mdl, r+1, c);	//— средний сын (если нужно)
-        if (v->rgt) OutNodes(v->rgt, r + 1, c + (offset >> r)); //правыйсын
+/* Функция вывода узлов до заданной глубины */
+void tree :: outNodes (node * v, int r, int c) {
+
+    if (r && c && (c<80))
+        SCREEN[r - 1][c - 1] = v->tag; // выводметки
+    if (r < maxrow) {
+        if (v->left)
+            outNodes (v->left, r + 1, c - (offset >> r)); //левыйсын
+        if (v->right)
+            outNodes (v->right, r + 1, c + (offset >> r)); //правыйсын
     }
+
 }
 
-template<class Item> class STACK
-{
-    Item * S; int t;
-public:
-    STACK(int maxt)
-    {
-        S = new Item[maxt]; t = 0;
-    }
-    int empty() const { return t == 0; }
-    void push(Item item) { S[t++] = item; }
-    Item pop() { return (t ? S[--t] : 0); }
+/* Шаблон для класса "стек" */
+template <class item> class STACK {
+
+    item * stack; 
+    int size;
+
+    public:
+        STACK (int maxSize) {
+            stack = new item[maxSize];
+            size = 0;
+        }
+        int empty () const {
+            return size == 0;
+        }
+        void push (item thing) {
+            stack[size++] = thing;
+        }
+        item pop () {
+            return (size ? stack[--size] : 0);
+        }
+
 };
 
- int Tree:: DFS()
-{
-    const int MaxS = 20; //максимальныйразмерстека
+/* Шаблон для класса "очередь" */
+template <class item> class QUEUE {
+
+    item * queue; 
+    int location, size, maxSize;
+
+    public:
+        QUEUE (int maxSize) : location(0), size(0), maxSize(maxSize) {
+            queue = new item[maxSize + 1];
+        }
+        int empty () const {
+            return (location % maxSize) == size;
+        }
+        void put (item thing) {
+            queue[size++] = thing;
+            size %= maxSize;
+        }
+        item get () {
+            location %= maxSize;
+            return queue[location++];
+        }
+
+};
+
+/* Функция нерекурсивного обхода дерева способом «в глубину» */
+int tree :: DFS () {
+
+    const int maxStackSize = 20;        // Максимальный размер стека
     int count = 0;
-    STACK <Node *> S(MaxS);  //создание стека указателей на узлы
-    S.push(root); // QUEUE <- v
-    while (!S.empty()) //Пока стек не пуст…
-    {
-        Node * v = S.pop(); // поднять узел из стека
-        cout << v->d << '_'; count++;       // выдать тег, счёт узлов
-        if (v->rgt) S.push(v->rgt); // STACK <- (правыйсын)
-        if (v->mdl) S.push(v->mdl);
-        if (v->lft) S.push(v->lft); // STACK <- (левыйсын)
+
+    STACK <node *> stack(maxStackSize); // Создание стека указателей на узлы
+    stack.push (root);                  // Добавляем корень в стек
+
+    while ( !stack.empty() ) {            // Пока стек не пуст
+        node * currentNode = stack.pop(); // Подннимаем узел из стека
+        cout << currentNode->tag << '_';  // Выдаём тег
+        count++;                          // Считаем этот узел
+        if (currentNode->right)
+            stack.push(currentNode->right); // Добавляем в стек правого сына
+        if (currentNode->left)
+            stack.push(currentNode->left);  // Добавляем в стек левого сына
     }
+
     return count;
+
 }
 
- template <class Item> class QUEUE
- {
-     Item * Q; int h, t, N;
- public:
-     QUEUE(int maxQ) : h(0), t(0), N(maxQ) { Q = new Item[maxQ + 1]; }
-     int empty()const { return (h % N) == t; }
-     void put(Item item) { Q[t++] = item; t %= N; }
-     Item get() { h %= N; return Q[h++]; }
- };
+/* Функция нерекурсивного обхода дерева способом «в ширину» */
+int tree :: BFS () {
 
- int Tree::BFS()
- {
-     const int MaxQ = 20; //максимальный размер очереди
+     const int maxQueueSize = 20;        // Максимальный размер очереди
      int count = 0;
-     QUEUE <Node *> Q(MaxQ);  //создание очереди указателей на узлы
-     Q.put(root); // QUEUE <- root поместить в очередь корень дерева 
-     while (!Q.empty()) //пока очередь не пуста
-     {
-         Node * v = Q.get();// взять из очереди,
-         cout << v->d << '_'; count++; // выдать тег, счёт узлов 
-         if (v->lft) Q.put(v->lft); // QUEUE <- (левыйсын)
-         if (v->mdl) Q.put(v->mdl);
-         if (v->rgt) Q.put(v->rgt); // QUEUE <- (правыйсын)
+
+     QUEUE <node *> queue(maxQueueSize); // создание очереди указателей на узлы
+     queue.put(root);                    // Добавляем корень в очередь
+
+     while ( !queue.empty() ) {             // Пока очередь не пуста
+         node * currentNode = queue.get();  // Берём узел из очереди
+         cout << currentNode->tag << '_';   // Выдаём тег
+         count++;                           // Считаем этот узел
+         if (currentNode->left)
+             queue.put(currentNode->left);  // Добавляем в очередь левого сына
+         if (currentNode->right)
+             queue.put(currentNode->right); // Добавляем в очередь правого сына
      }
+
      return count;
- }
+
+}

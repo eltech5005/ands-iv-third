@@ -14,15 +14,14 @@
 
 using namespace std;
 
-int main(int argc, char **argv) {
+int main (int argc, char **argv) {
 
     int n = 0;
-    Tree Tr('a', 'z', 8);
+    tree Tr('a', 'z', 8);
     srand(time(NULL));
-    setlocale(LC_ALL, "Russian");
-    Tr.MakeTree();
+    Tr.makeTree();
     if (Tr.exist()) {
-        Tr.OutTree();
+        Tr.outTree();
         cout << "\n" << "Deep walk: ";
         n = Tr.DFS();
         cout << " Nodes passed = " << n;
