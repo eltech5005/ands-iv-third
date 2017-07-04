@@ -1,6 +1,13 @@
 /* -----
  * Пользовательская библиотека, содержащая описание классов "дерево" и "узел" для решения задачи задачи №3.
  ----- */
+#ifndef SCREEN_WIDTH // Проверка, что значение еще не определено
+    #define SCREEN_WIDTH 80  // Ширина экрана для вывода дерева (в символах)
+#endif
+
+#ifndef SCREEN_OFFSET
+    #define SCREEN_OFFSET 40 // Смещение отображения корня дерева (в символах)
+#endif
 
 #include "iostream"
 
@@ -72,19 +79,19 @@ class tree {
         }
         void outTree ();          // Вывод дерева на экран
         bool exist () {           // Проверка дерева на пустоту
-            return root != NULL;
+            return root != nullptr;
         }
         int BFS ();               // Обход дерева "в ширину"
 
 };
 
 /* Конструктор дерева */
-tree :: tree (char nm, char mnm, int mxr) : num(nm), maxnum(mnm), maxrow(mxr), offset(40), root(NULL) {
+tree :: tree (char nm, char mnm, int mxr) : root(nullptr), num(nm), maxnum(mnm), maxrow(mxr), offset(SCREEN_OFFSET) {
 
     SCREEN = new char *[maxrow];
 
     for (int i = 0; i < maxrow; ++i)
-        SCREEN[i] = new char[80];
+        SCREEN[i] = new char[SCREEN_WIDTH];
 
 }
 
@@ -102,7 +109,7 @@ tree :: ~tree () {
 /* Функция создания поддрева  */
 node * tree :: makeNode (int depth) {
 
-    node * currentNode = NULL;                                  // Создаваемый узел
+    node * currentNode = nullptr;                                  // Создаваемый узел
     bool createNode = (depth < rand() % 6 + 1) && (num <= 'z'); // Случайно создаём или не создаём узел
 
     if (createNode) {
@@ -122,8 +129,8 @@ void tree :: outTree () {
     clrscr ();
     outNodes (root, 1, offset);
     for (int i = 0; i < maxrow; ++i) {
-        SCREEN[i][79] = 0;
-        cout << "\n"<< SCREEN[i];
+        SCREEN[i][SCREEN_WIDTH-1] = 0;
+        cout << "\n \n"<< SCREEN[i];
     }
     cout << "\n";
 
@@ -133,7 +140,7 @@ void tree :: outTree () {
 void tree :: clrscr () {
 
     for (int i = 0; i < maxrow; ++i)
-        for (int j = 0; j < 80; ++j)
+        for (int j = 0; j < SCREEN_WIDTH; ++j)
             SCREEN[i][j]=' ';
 
 }
@@ -141,7 +148,7 @@ void tree :: clrscr () {
 /* Функция занесения поддрева в матрицу вывода */
 void tree :: outNodes (node * currentNode, int row, int column) {
 
-    if (row && column && (column < 80))
+    if (row && column && (column < SCREEN_WIDTH))
         SCREEN[row - 1][column - 1] = currentNode->tag;                       // Вывод метки обрабатываемого узла
     if (row < maxrow) {
         if (currentNode->left)
@@ -163,7 +170,7 @@ int tree :: BFS () {
 
      while ( !queue.empty() ) {             // Пока очередь не пуста
          node * currentNode = queue.get();  // Берём узел из очереди
-         cout << currentNode->tag << '_';   // Выдаём тег
+         cout << currentNode->tag << "->";  // Выдаём тег
          count++;                           // Считаем этот узел
          if (currentNode->left)
              queue.put(currentNode->left);  // Добавляем в очередь левого сына
