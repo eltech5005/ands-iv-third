@@ -86,9 +86,8 @@ node * tree :: makeNode (int depth) {
      //cout << "node (" <<num<< "," << depth << ")  1/0: " ; cin>> Y;
     if (Y) {	// создание узла, если Y = 1
         v = new node;
-        v->tag = num++;	 // разметка в прямом порядке (= «в глубину»)
         v->left = makeNode(depth + 1);
-                 //v->d = num++;          //вариант — во внутреннем
+        v->tag = num++;	 // Разметка во внутреннем порядке симметричном
         v->right = makeNode(depth + 1);
                  //v->d = num++;		// вариант — в обратном
     }

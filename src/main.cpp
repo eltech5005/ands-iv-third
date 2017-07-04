@@ -23,7 +23,7 @@ int main (int argc, char **argv) {
     if (Tr.exist()) {
         Tr.outTree();
         cout << "\n" << "Deep walk: ";
-        n = Tr.DFS();
+        n = Tr.BFS();
         cout << " Nodes passed = " << n;
         cout << "\n" << "Weight walk: ";
         n = Tr.BFS();
