@@ -51,6 +51,8 @@ class node {
             if (left) delete left;
             if (right) delete right;
         }
+        int checkGen (); // Определение количества потомков
+
     friend class tree; // Дружественный класс "дерево"
     
 };
@@ -81,7 +83,7 @@ class tree {
         bool exist () {           // Проверка дерева на пустоту
             return root != nullptr;
         }
-        int BFS ();               // Обход дерева "в ширину"
+        int BFS ();                       // Обход дерева "в ширину"
 
 };
 
@@ -159,6 +161,23 @@ void tree :: outNodes (node * currentNode, int row, int column) {
 
 }
 
+/* Функция определения количества потомков */
+int node :: checkGen () {
+
+    int sons = 0;
+
+    if (left) { // Подсчёт количества потомков слева
+        ++sons += left->checkGen();
+    }
+
+    if (right) { // Прибавляем количество потомков справа 
+        ++sons += right->checkGen();
+    }
+
+    return sons;
+
+}
+
 /* Функция нерекурсивного обхода дерева способом «в ширину» */
 int tree :: BFS () {
 
@@ -171,7 +190,8 @@ int tree :: BFS () {
      while ( !queue.empty() ) {             // Пока очередь не пуста
          node * currentNode = queue.get();  // Берём узел из очереди
          cout << currentNode->tag << "->";  // Выдаём тег
-         count++;                           // Считаем этот узел
+         if (currentNode->checkGen() <= 1)  // Если количество потомков узла не больше 1
+             ++count;                       // Считаем этот узел
          if (currentNode->left)
              queue.put(currentNode->left);  // Добавляем в очередь левого сына
          if (currentNode->right)
