@@ -51,7 +51,7 @@ class node {
             if (left) delete left;
             if (right) delete right;
         }
-        int checkGen (); // Определение количества потомков
+        int countChilds (); // Определение количества потомков
 
     friend class tree; // Дружественный класс "дерево"
     
@@ -162,19 +162,19 @@ void tree :: outNodes (node * currentNode, int row, int column) {
 }
 
 /* Функция определения количества потомков */
-int node :: checkGen () {
+int node :: countChilds () {
 
-    int sons = 0;
+    int childs = 0;
 
     if (left) { // Подсчёт количества потомков слева
-        ++sons += left->checkGen();
+        ++childs += left->countChilds();
     }
 
     if (right) { // Прибавляем количество потомков справа 
-        ++sons += right->checkGen();
+        ++childs += right->countChilds();
     }
 
-    return sons;
+    return childs;
 
 }
 
@@ -190,7 +190,7 @@ int tree :: BFS () {
      while ( !queue.empty() ) {             // Пока очередь не пуста
          node * currentNode = queue.get();  // Берём узел из очереди
          cout << currentNode->tag << "->";  // Выдаём тег
-         if (currentNode->checkGen() <= 1)  // Если количество потомков узла не больше 1
+         if (currentNode->countChilds() <= 1)  // Если количество потомков узла не больше 1
              ++count;                       // Считаем этот узел
          if (currentNode->left)
              queue.put(currentNode->left);  // Добавляем в очередь левого сына

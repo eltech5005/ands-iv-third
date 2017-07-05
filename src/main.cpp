@@ -48,5 +48,8 @@ int main (int argc, char **argv) {
     cout << " End ";
     for (int i=0; i < SCREEN_WIDTH/2; ++i) cout << "-";
 
+    std::cout << "\n Press enter to continue... "; 
+    std::cin.get(); 
+
     return 0;
 }
